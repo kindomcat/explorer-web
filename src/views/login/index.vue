@@ -164,7 +164,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$service.getHttp('/test', null).then(res => {
+          this.$service.getHttp('/login', null).then(res => {
             if (res.rel) {
               console.log(1111)
             }
