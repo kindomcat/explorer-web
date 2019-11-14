@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -46,21 +46,17 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
+    const vm = this
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
+      vm.$service.getHttp('/userInfo', null).then(res => {
+        const { data } = res
         if (!data) {
-          reject('Verification failed, please Login again.')
+          reject('获取信息失败，请重新登录')
         }
-
-        const { roles, name, avatar, introduction } = data
-
-        // roles must be a non-empty array
+        const { roles, name, avatar, introduction } = res.data
         if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
+          reject('角色获取失败')
         }
-
         commit('SET_ROLES', roles)
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)

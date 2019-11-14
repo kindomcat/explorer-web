@@ -75,6 +75,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { setToken } from '@/utils/auth'
 import SocialSign from './components/SocialSignin'
 
 export default {
@@ -166,18 +167,14 @@ export default {
           this.loading = true
           this.$service.getHttp('/login', null).then(res => {
             if (res.rel) {
-              console.log(1111)
-            }
-          })
-
-          this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
+              this.$store.commit('user/SET_TOKEN', res.data)
+              setToken(res.data)
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
+            }
+          }).catch(() => {
+            this.loading = false
+          })
         } else {
           console.log('error submit!!')
           return false
