@@ -50,7 +50,6 @@ const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
       const accessedRoutes = asyncRoutes || []
-      console.log(1111)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

@@ -53,13 +53,7 @@ service.interceptors.response.use(
   }
 )
 
-const prefix = '/admin-api'
-
-// GET请求,将url和请求参数传入，通过Promise，将成功和失败的数据派发出去
-export function getHttp(uri, params) {
-  uri = prefix + uri
-  return getHttpCommon(uri, params)
-}
+const userPrefix = '/api/api/user-admin'
 
 export function getHttpCommon(uri, params) {
   return new Promise((resolve, reject) => {
@@ -102,23 +96,23 @@ export function putHttpCommon(uri, params, body) {
 }
 
 export default {
-  getHttp: function(uri, params) {
-    uri = prefix + uri
+  getUserHttp: function(uri, params) {
+    uri = userPrefix + uri
     return getHttpCommon(uri, params)
   },
-  deleteHttp: function(uri, params) {
-    uri = prefix + uri
+  delUserHttp: function(uri, params) {
+    uri = userPrefix + uri
     return deleteHttpCommon(uri, params)
   },
 
-  putHttp: function(uri, params, body) {
-    uri = prefix + uri
+  putUserHttp: function(uri, params, body) {
+    uri = userPrefix + uri
     return putHttpCommon(uri, params, body)
   },
 
   // POST请求，将url,请求参数和body传入，通过Promise，将成功和失败的数据派发出去
-  postHttp: function(uri, params, body) {
-    uri = prefix + uri
+  postUserHttp: function(uri, params, body) {
+    uri = userPrefix + uri
     return postHttpCommon(uri, params, body)
   }
 }
