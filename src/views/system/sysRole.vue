@@ -1,12 +1,21 @@
 <template>
   <div class="app-container">
-    <el-input v-model="listQuery.username" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="initData" />
+    <el-input v-model="listQuery.name" placeholder="角色名" style="width: 200px;" class="filter-item" @keyup.enter.native="initData" />
     <el-button class="filter-item" type="primary" icon="el-icon-search" @click="initData">搜索</el-button>
     <el-button type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
     <el-table :data="tableList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="用户名" width="220" prop="username" />
-      <el-table-column align="center" label="姓名" width="220" prop="name" />
-      <el-table-column align="header-center" label="描述" prop="description" />
+      <el-table-column
+        prop="name"
+        align="center"
+        width="220"
+        label="角色名称"
+      />
+      <el-table-column
+        prop="description"
+        align="center"
+        width="220"
+        label="描述"
+      />
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
@@ -15,27 +24,13 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑用户':'添加用户'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑':'添加'">
       <el-form ref="ruleForm" :model="obj" :rules="rules" label-width="80px" label-position="left">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="obj.username" placeholder="用户名" />
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="obj.name" placeholder="角色名称" />
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="obj.name" placeholder="姓名" />
-        </el-form-item>
-        <el-form-item v-if="dialogType==='new'" label="密码" prop="password">
-          <el-input v-model="obj.password" placeholder="密码" />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="obj.phone" placeholder="手机号" />
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input
-            v-model="obj.description"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            type="textarea"
-            placeholder="用户描述"
-          />
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="obj.description" placeholder="描述" />
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
@@ -72,12 +67,11 @@ export default {
         label: 'title'
       },
       listQuery: {
-        username: ''
+        name: ''
       },
       rules: {
-        username: { required: true, message: '请输入用户名称', trigger: 'blur' },
-        name: { required: true, message: '请输入姓名', trigger: 'blur' },
-        password: { required: true, message: '请输入密码', trigger: 'blur' }
+        name: { required: true, message: '请输入角色名称', trigger: 'blur' },
+        description: { required: true, message: '请输入描述', trigger: 'blur' }
       }
     }
   },
@@ -91,7 +85,7 @@ export default {
   },
   methods: {
     initData() {
-      this.$service.getUserHttp('/sysUser/page/query', { username: this.listQuery.username }).then(res => {
+      this.$service.getUserHttp('/sysRole/page/query', { username: this.listQuery.username }).then(res => {
         if (res.rel) {
           this.tableList = res.data
         }
@@ -115,7 +109,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$service.delUserHttp('/sysUser/del', { id: row.id }).then(res => {
+        this.$service.delUserHttp('/sysRole/del', { id: row.id }).then(res => {
           if (res.rel) {
             this.initData()
             this.$message({ type: 'success', message: '删除成功!' })
@@ -124,22 +118,18 @@ export default {
       })
     },
     confirm() {
-      this.$refs['ruleForm'].validate((valid, obj) => {
+      this.$refs['ruleForm'].validate((valid) => {
         const isEdit = this.dialogType === 'edit'
-        const arr = Object.keys(obj)
-        if (!valid && isEdit && arr.length === 1 && arr[0] === 'password') {
-          valid = true
-        }
         if (valid) {
           if (isEdit) {
-            this.$service.putUserHttp('/sysUser/' + this.obj.id, null, this.obj).then(res => {
+            this.$service.putUserHttp('/sysRole/' + this.obj.id, null, this.obj).then(res => {
               if (res.rel) {
                 this.initData()
                 this.$message({ type: 'success', message: '编辑成功!' })
               }
             })
           } else {
-            this.$service.postUserHttp('/sysUser', null, this.obj).then(res => {
+            this.$service.postUserHttp('/sysRole', null, this.obj).then(res => {
               if (res.rel) {
                 this.initData()
                 this.$message({ type: 'success', message: '添加成功!' })

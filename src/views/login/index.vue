@@ -165,7 +165,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$service.getHttp('/user-admin/login', null).then(res => {
+          this.$service.getUserHttp('/login', null).then(res => {
             if (res.rel) {
               this.$store.commit('user/SET_TOKEN', res.data)
               setToken(res.data)

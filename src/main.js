@@ -19,6 +19,9 @@ import request from './utils/request'
 import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
+import 'vue-tree-halower/dist/halower-tree.min.css'
+import VTree from 'vue-tree-halower'
+Vue.use(VTree)
 
 /**
  * If you don't want to use mock-server

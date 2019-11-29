@@ -68,6 +68,9 @@ export function getHttpCommon(uri, params) {
 export function postHttpCommon(uri, params, body) {
   return new Promise((resolve, reject) => {
     service.post(`${uri}?${qs.stringify(params)}`, body).then(response => {
+      if (!response.data.rel) {
+        this.$notify.error({ title: '失败', message: response.data.message })
+      }
       resolve(response.data)
     }).catch(response => {
       resolve(response.message)

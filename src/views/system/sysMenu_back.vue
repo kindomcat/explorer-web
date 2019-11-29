@@ -3,10 +3,14 @@
     <el-input v-model="listQuery.username" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="initData" />
     <el-button class="filter-item" type="primary" icon="el-icon-search" @click="initData">搜索</el-button>
     <el-button type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
-    <el-table :data="tableList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="用户名" width="220" prop="username" />
-      <el-table-column align="center" label="姓名" width="220" prop="name" />
-      <el-table-column align="header-center" label="描述" prop="description" />
+    <el-table :data="tableList" style="width: 100%;margin-top:30px;" border fit highlight-current-row>
+      <el-table-column prop="code" align="center" width="220" label="编码" />
+      <el-table-column prop="name" align="center" width="220" label="菜单名称" />
+      <el-table-column prop="type" align="center" width="220" label="类型" />
+      <el-table-column prop="icon" align="center" width="220" label="图标" />
+      <el-table-column prop="url" align="center" width="220" label="链接" />
+      <el-table-column prop="sort" align="center" width="220" label="排序" />
+      <el-table-column prop="description" align="center" width="220" label="描述" />
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
@@ -15,27 +19,25 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑用户':'添加用户'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑':'添加'">
       <el-form ref="ruleForm" :model="obj" :rules="rules" label-width="80px" label-position="left">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="obj.username" placeholder="用户名" />
+        <el-form-item label="编码" prop="code">
+          <el-input v-model="obj.code" placeholder="编码" />
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="obj.name" placeholder="姓名" />
+        <el-form-item label="菜单名称" prop="name">
+          <el-input v-model="obj.name" placeholder="菜单名称" />
         </el-form-item>
-        <el-form-item v-if="dialogType==='new'" label="密码" prop="password">
-          <el-input v-model="obj.password" placeholder="密码" />
+        <el-form-item label="图标" prop="icon">
+          <el-input v-model="obj.icon" placeholder="图标" />
         </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="obj.phone" placeholder="手机号" />
+        <el-form-item label="链接" prop="url">
+          <el-input v-model="obj.url" placeholder="链接" />
         </el-form-item>
-        <el-form-item label="描述">
-          <el-input
-            v-model="obj.description"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            type="textarea"
-            placeholder="用户描述"
-          />
+        <el-form-item label="排序" prop="sort">
+          <el-input v-model="obj.sort" placeholder="排序" />
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="obj.description" placeholder="描述" />
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
@@ -75,9 +77,16 @@ export default {
         username: ''
       },
       rules: {
-        username: { required: true, message: '请输入用户名称', trigger: 'blur' },
-        name: { required: true, message: '请输入姓名', trigger: 'blur' },
-        password: { required: true, message: '请输入密码', trigger: 'blur' }
+        id: { required: true, message: '请输入', trigger: 'blur' },
+        parent_id: { required: true, message: '请输入父ID', trigger: 'blur' },
+        code: { required: true, message: '请输入编码', trigger: 'blur' },
+        name: { required: true, message: '请输入菜单名称', trigger: 'blur' },
+        type: { required: true, message: '请输入类型', trigger: 'blur' },
+        status: { required: true, message: '请输入状态', trigger: 'blur' },
+        icon: { required: true, message: '请输入图标', trigger: 'blur' },
+        url: { required: true, message: '请输入链接', trigger: 'blur' },
+        sort: { required: true, message: '请输入排序', trigger: 'blur' },
+        description: { required: true, message: '请输入描述', trigger: 'blur' }
       }
     }
   },
@@ -91,7 +100,7 @@ export default {
   },
   methods: {
     initData() {
-      this.$service.getUserHttp('/sysUser/page/query', { username: this.listQuery.username }).then(res => {
+      this.$service.getUserHttp('/sysMenu/page/query', { username: this.listQuery.username }).then(res => {
         if (res.rel) {
           this.tableList = res.data
         }
@@ -110,12 +119,12 @@ export default {
       this.$refs['ruleForm'].resetFields()
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确定要删除该用户?', '提醒', {
+      this.confirm('确定要删除该用户?', '提醒', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$service.delUserHttp('/sysUser/del', { id: row.id }).then(res => {
+        this.$service.delUserHttp('/sysMenu/del', { id: row.id }).then(res => {
           if (res.rel) {
             this.initData()
             this.$message({ type: 'success', message: '删除成功!' })
@@ -124,22 +133,18 @@ export default {
       })
     },
     confirm() {
-      this.$refs['ruleForm'].validate((valid, obj) => {
+      this.$refs['ruleForm'].validate((valid) => {
         const isEdit = this.dialogType === 'edit'
-        const arr = Object.keys(obj)
-        if (!valid && isEdit && arr.length === 1 && arr[0] === 'password') {
-          valid = true
-        }
         if (valid) {
           if (isEdit) {
-            this.$service.putUserHttp('/sysUser/' + this.obj.id, null, this.obj).then(res => {
+            this.$service.putUserHttp('/sysMenu/' + this.obj.id, null, this.obj).then(res => {
               if (res.rel) {
                 this.initData()
                 this.$message({ type: 'success', message: '编辑成功!' })
               }
             })
           } else {
-            this.$service.postUserHttp('/sysUser', null, this.obj).then(res => {
+            this.$service.postUserHttp('/sysMenu', null, this.obj).then(res => {
               if (res.rel) {
                 this.initData()
                 this.$message({ type: 'success', message: '添加成功!' })

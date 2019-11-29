@@ -46,25 +46,8 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
-    const vm = this
     return new Promise((resolve, reject) => {
-      vm.$service.getHttp('/userInfo', null).then(res => {
-        const { data } = res
-        if (!data) {
-          reject('获取信息失败，请重新登录')
-        }
-        const { roles, name, avatar, introduction } = res.data
-        if (!roles || roles.length <= 0) {
-          reject('角色获取失败')
-        }
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
+      commit('SET_NAME', 'admin')
     })
   },
 
